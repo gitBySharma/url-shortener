@@ -1,6 +1,9 @@
+require('dotenv').config();
+
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 const user_routes = require("./routes/user.js");
 
@@ -18,6 +21,13 @@ app.get('/', (req, res) => {
 
 app.use(user_routes);
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-})
+mongoose.connect(`mongodb+srv://fetchsubhankar:${process.env.DATABASE_PASSWORD}@urlshortener.rop3w.mongodb.net/?retryWrites=true&w=majority&appName=URLShortener`)
+    .then(() => {
+        console.log("Connected to mongoDB");
+        app.listen(process.env.PORT, () => {
+            console.log(`Server is running on port ${process.env.PORT}`);
+        })
+    })
+    .catch((error) => {
+        console.log(error)
+    })
