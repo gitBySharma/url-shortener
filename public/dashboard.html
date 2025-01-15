@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Warp & Shrink</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.7.2/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #1faa9c 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+            padding: 1.1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 2.8rem !important;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .main-container {
+            flex-grow: 1;
+            padding: 2rem 0;
+        }
+
+        .dashboard-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .shortener-form {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .form-control {
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem 1rem;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #1faa9c;
+            box-shadow: 0 0 0 0.2rem rgba(31, 170, 156, 0.25);
+        }
+
+        .btn-shorten {
+            background: linear-gradient(135deg, #667eea 0%, #1faa9c 100%);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-shorten:hover {
+            opacity: 0.9;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .recent-links {
+            background: #fff;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .link-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .link-item:last-child {
+            border-bottom: none;
+        }
+
+        .link-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .copy-btn {
+            color: #1faa9c;
+            border: 1px solid #1faa9c;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: #1faa9c;
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #1faa9c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand text-white" href="#">
+                <i class="bi bi-link-45deg me-2"></i>
+                Warp & Shrink
+            </a>
+            <div class="user-info ms-auto">
+                <div class="user-avatar">
+                    JS
+                </div>
+                <div class="text-white">
+                    John Smith
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-container">
+        <div class="dashboard-card">
+            <h2 class="mb-4">Create Short URL</h2>
+            <div class="shortener-form">
+                <form>
+                    <div class="mb-3">
+                        <label for="longUrl" class="form-label">Long URL</label>
+                        <input type="url" class="form-control" id="longUrl" placeholder="Paste your long URL here"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customAlias" class="form-label">Custom Alias (Optional)</label>
+                        <input type="text" class="form-control" id="customAlias" placeholder="Enter your custom alias">
+                        <div class="form-text">Create a memorable alias for your URL (e.g., my-special-link)</div>
+                    </div>
+                    <button type="submit" class="btn btn-shorten">
+                        <i class="bi bi-link-45deg me-2"></i>
+                        Shorten URL
+                    </button>
+                </form>
+            </div>
+
+            <div class="recent-links">
+                <h3 class="mb-4">Recent Links</h3>
+                <div class="link-item d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted mb-1">Original: example.com/very-long-url...</div>
+                        <div class="fw-bold">wrp.sh/custom-name</div>
+                    </div>
+                    <button class="btn copy-btn">
+                        <i class="bi bi-clipboard me-2"></i>
+                        Copy
+                    </button>
+                </div>
+                <div class="link-item d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted mb-1">Original: another-example.com/path...</div>
+                        <div class="fw-bold">wrp.sh/my-link</div>
+                    </div>
+                    <button class="btn copy-btn">
+                        <i class="bi bi-clipboard me-2"></i>
+                        Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
