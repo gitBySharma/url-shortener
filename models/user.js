@@ -13,8 +13,10 @@ const UserSchema = new Schema({
         required: true,
         unique: true
     },
-    name: String
-
-});
+    name: {
+        type: String,
+        required: true,
+    }
+}, { timestamps: true });
 
 module.exports = mongoose.model("Users", UserSchema);

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickLink - URL Shortener</title>
+    <title>Warp & Shrink - URL Shortener</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.7.2/font/bootstrap-icons.min.css"
         rel="stylesheet">
@@ -171,12 +171,12 @@
     const google_btn = document.getElementById("google_btn");
     google_btn.addEventListener("click", async function () {
         // Open the Google authentication page
-        const login_status = await axios.get("/user-login");
+        window.location.href = "/auth/google";
         console.log(login_status);
-        if (login_status.data.success == true) {
-            // Redirect to the dashboard
-            window.location.href = "/dashboard.html";
-        }
+        // if (login_status.data.success == true) {
+        //     // Redirect to the dashboard
+        //     window.location.href = "/dashboard.html";
+        // }
     })
 
 </script>
