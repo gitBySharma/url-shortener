@@ -16,14 +16,17 @@ router.get("/auth/google", passport.authenticate("google", { scope: ["profile", 
 
 router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/" }),
     (req, res) => {
-        res.redirect("/dashboard");
+        const token = req.user.token;
+        res.redirect(`http://localhost:3000/dashboard?token=${token}`);
+        // res.status(200).json({ message: "Login successfull", token: token });
     }
 );
 
 
-router.get("/dashboard", authentication.isAuthenticated, userController.getDashboard);
+router.get("/dashboard", userController.getDashboard);
 
-router.get("/logout", userController.logout);
+router.get("/dashboard/user/data", authentication.authenticate, userController.getDashboardData);
+
 
 
 

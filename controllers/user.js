@@ -4,8 +4,11 @@ const express = require("express");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const session = require("express-session");
+
 const User = require("../models/user.js");
+
 
 
 //passport google strategy
@@ -25,6 +28,11 @@ passport.use(new GoogleStrategy({
                     name: profile.displayName
                 });
             }
+
+            //generate JWT token
+            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+            user.token = token;
+
             return done(null, user);
 
         } catch (error) {
@@ -67,19 +75,17 @@ exports.getDashboard = (req, res) => {
 };
 
 
-exports.logout = (req, res) => {
-    req.logout(function (err) {
-        if (err) { return next(err); }
-        res.redirect('/');
+exports.getDashboardData = (req, res, next) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+
+    }
+    res.status(200).json({
+        message: "Welcome to dashboard",
+        user: {
+            id: req.user.id,
+            name: req.user.name,
+            email: req.user.email
+        },
     });
 };
-
-
-// //middleware for authentication
-// exports.isAuthenticated = (req, res, next) => {
-//     if (req.isAuthenticated()) {
-//         return next();
-
-//     }
-//     res.redirect("/");
-// }
