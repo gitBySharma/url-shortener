@@ -140,7 +140,7 @@
         <div class="dashboard-card">
             <h2 class="mb-4">Create Short URL</h2>
             <div class="shortener-form">
-                <form>
+                <form id="url-form">
                     <div class="mb-3">
                         <label for="longUrl" class="form-label">Long URL</label>
                         <input type="url" class="form-control" id="longUrl" placeholder="Paste your long URL here"
@@ -207,6 +207,7 @@
             console.log("Token found:", token);
         }
 
+        //new get request to retrieve user data
         const response = await axios.get("/dashboard/user/data", { headers: { "Authorization": token } });
         if (response.status == 200) {
             const welcome_msg = document.getElementById("welcome-msg");
@@ -222,6 +223,24 @@
         // Redirect to the login page
         window.location.href = "/";
 
+    });
+
+
+    //create short url
+    const urlForm = document.getElementById("url-form");
+    const longUrl = document.getElementById("longUrl");
+    const customAlias = document.getElementById("customAlias");
+
+    urlForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const token = localStorage.getItem("token");
+        const response = await axios.post("/api/shorten/", {
+            "longUrl": longUrl.value,
+            "customAlias": customAlias.value
+        }, { headers: { "Authorization": token } });
+        if (response.status == 200) {
+            console.log("response", response);
+        }
     });
 
 </script>
