@@ -30,6 +30,10 @@ exports.authenticate = async (req, res, next) => {
 
     } catch (error) {
         console.log("Authentication error", error);
+        // Handle expired token error
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json({ message: "Token has expired. Please login again." });
+        }
         res.status(500).json({ message: "Internal server error" });
 
     }
