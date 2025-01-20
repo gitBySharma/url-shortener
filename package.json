@@ -4,7 +4,7 @@
   "description": "URL shortener app with comprehensive analytics, custom aliases and rate limiting",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "node app.js"
   },
   "author": "Subhankar Sharma",
   "license": "ISC",
