@@ -22,7 +22,7 @@ exports.getUrlAnalytics = async (req, res, next) => {
         const totalClicks = url.clicks;
         const uniqueUsers = (await Analytics.distinct("ipAddress", { urlId: url._id })).length;
 
-        // Clicks by date for the last 7 days
+        // Clicks by date of the last 7 days
         const clicksByDate = await Analytics.aggregate([
             { $match: { urlId: url._id, timestamp: { $gte: moment().subtract(7, "days").toDate() } } },
             {
@@ -34,14 +34,14 @@ exports.getUrlAnalytics = async (req, res, next) => {
             { $sort: { _id: 1 } },
             {
                 $project: {
-                    date: "$_id", // Rename _id to date
+                    date: "$_id",
                     clickCount: 1,
-                    _id: 0, // Remove _id field from the output
+                    _id: 0,
                 },
             },
         ]);
 
-        // OS type breakdown
+        // OS type data
         const osType = await Analytics.aggregate([
             { $match: { urlId: url._id } },
             {
@@ -56,12 +56,12 @@ exports.getUrlAnalytics = async (req, res, next) => {
                     osName: "$_id",
                     uniqueClicks: 1,
                     uniqueUsers: { $size: "$uniqueUsers" },
-                    _id: 0, // Remove _id field from the output
+                    _id: 0,
                 },
             },
         ]);
 
-        // Device type breakdown
+        // Device type data
         const deviceType = await Analytics.aggregate([
             { $match: { urlId: url._id } },
             {
@@ -76,7 +76,7 @@ exports.getUrlAnalytics = async (req, res, next) => {
                     deviceName: "$_id",
                     uniqueClicks: 1,
                     uniqueUsers: { $size: "$uniqueUsers" },
-                    _id: 0, // Remove _id field from the output
+                    _id: 0,
                 },
             },
         ]);
@@ -90,7 +90,7 @@ exports.getUrlAnalytics = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.log("Error fetching analytics:", error);
+        console.log("Analytics fetching error:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -102,12 +102,12 @@ exports.getTopicAnalytics = async (req, res, next) => {
     try {
         const { topic } = req.params;
 
-        // Validate if topic is valid (matches enum values in URL model)
+        // check if the topic is valid 
         if (!["acquisition", "activation", "retention", "other"].includes(topic)) {
             return res.status(400).json({ message: "Invalid topic" });
         }
 
-        // Find all URLs for this topic belonging to the authenticated user
+        // Find all URLs for this topic for the authenticated user
         const urls = await Url.find({
             topic: topic,
             userId: req.user.id
@@ -120,15 +120,15 @@ exports.getTopicAnalytics = async (req, res, next) => {
         // Get all URL IDs for this topic
         const urlIds = urls.map(url => url._id);
 
-        // Calculate total clicks across all URLs in the topic
+        // Calculate total clicks on all URLs of the topic
         const totalClicks = urls.reduce((sum, url) => sum + url.clicks, 0);
 
-        // Get unique users across all URLs in the topic
+        // Get unique users of all URLs of the topic
         const uniqueUsers = (await Analytics.distinct("ipAddress", {
             urlId: { $in: urlIds }
         })).length;
 
-        // Get clicks by date for the last 30 days for all URLs in the topic
+        // Get clicks of last 30 days for all URLs in the topic
         const clicksByDate = await Analytics.aggregate([
             {
                 $match: {
@@ -160,7 +160,7 @@ exports.getTopicAnalytics = async (req, res, next) => {
         ]);
 
         // Get detailed stats for each URL in the topic
-        const urlStats = await Promise.all(urls.map(async (url) => {
+        const urlData = await Promise.all(urls.map(async (url) => {
             const uniqueUrlUsers = (await Analytics.distinct("ipAddress", {
                 urlId: url._id
             })).length;
@@ -172,18 +172,147 @@ exports.getTopicAnalytics = async (req, res, next) => {
             };
         }));
 
-        // Send response with all analytics data
+
         res.status(200).json({
             topic,
             totalClicks,
             uniqueUsers,
             clicksByDate,
-            urls: urlStats
+            urls: urlData
         });
 
     } catch (error) {
-        console.log("Error fetching topic analytics", error);
+        console.log("Topic analytics fetching error", error);
         res.status(500).json({ message: "Internal server error" });
 
+    }
+};
+
+
+
+
+//function for overall analytics of a user
+exports.getOverallAnalytics = async (req, res, next) => {
+    try {
+        //find all urls created by authenticated user
+        const userUrls = await Url.find({ userId: req.user.id });
+
+        //calculate total urls
+        const totalUrls = userUrls.length;
+        if (totalUrls === 0) {
+            return res.status(404).json({ message: "No urls found for this user" })
+        }
+
+        //get all url IDs of the user
+        const urlIds = userUrls.map((url) => url._id);
+
+        //calculate total clicks of all URLs
+        const totalClicks = userUrls.reduce((sum, url) => sum + url.clicks, 0);
+
+        //get total unique users among all urls
+        const uniqueUsers = (await Analytics.distinct("ipAddress", { urlId: { $in: urlIds } })).length;
+
+
+        // Get clicks by date for all URLs in the last 30 days
+        const clicksByDate = await Analytics.aggregate([
+            {
+                // Match records for the user's URLs in last 30 days
+                $match: {
+                    urlId: { $in: urlIds },
+                    timestamp: {
+                        $gte: moment().subtract(30, "days").toDate()
+                    }
+                }
+            },
+            {
+                // Group by date and click count
+                $group: {
+                    _id: {
+                        $dateToString: {
+                            format: "%Y-%m-%d",
+                            date: "$timestamp"
+                        }
+                    },
+                    totalClicks: { $sum: 1 }
+                }
+            },
+            {
+                // output format
+                $project: {
+                    date: "$_id",
+                    totalClicks: 1,
+                    _id: 0
+                }
+            },
+            // Sort by date in ascending order
+            { $sort: { date: 1 } }
+        ]);
+
+        // os type data with unique clicks and users
+        const osType = await Analytics.aggregate([
+            {
+                // Match records for the user's URLs
+                $match: {
+                    urlId: { $in: urlIds }
+                }
+            },
+            {
+                // Group by OS type and calculate
+                $group: {
+                    _id: "$osType",
+                    uniqueClicks: { $sum: 1 },
+                    uniqueUsers: { $addToSet: "$ipAddress" }
+                }
+            },
+            {
+                // output format
+                $project: {
+                    osName: "$_id",
+                    uniqueClicks: 1,
+                    uniqueUsers: { $size: "$uniqueUsers" },
+                    _id: 0
+                }
+            }
+        ]);
+
+        // device type data with unique clicks and users
+        const deviceType = await Analytics.aggregate([
+            {
+                // Match records for the user's URLs
+                $match: {
+                    urlId: { $in: urlIds }
+                }
+            },
+            {
+                // Group by device type and calculate
+                $group: {
+                    _id: "$deviceType",
+                    uniqueClicks: { $sum: 1 },
+                    uniqueUsers: { $addToSet: "$ipAddress" }
+                }
+            },
+            {
+                // output format
+                $project: {
+                    deviceName: "$_id",
+                    uniqueClicks: 1,
+                    uniqueUsers: { $size: "$uniqueUsers" },
+                    _id: 0
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            totalUrls,
+            totalClicks,
+            uniqueUsers,
+            clicksByDate,
+            osType,
+            deviceType
+        });
+
+    } catch (error) {
+        console.log("Overall analytics fetching error", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
