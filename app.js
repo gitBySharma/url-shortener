@@ -9,7 +9,6 @@ const User = require("./models/user.js");
 const Url = require("./models/url.js");
 const Analytics = require("./models/analytics.js");
 
-const userController = require("./controllers/user.js");
 
 const user_routes = require("./routes/user.js");
 const url_routes = require("./routes/url.js");
