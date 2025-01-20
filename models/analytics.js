@@ -20,7 +20,7 @@ const AnalyticsSchema = new Schema({
     userAgent: String,
     ipAddress: String,
     osType: String,
-    deviceType: String,
+    deviceType: String
 });
 
 module.exports = mongoose.model("Analytics", AnalyticsSchema);

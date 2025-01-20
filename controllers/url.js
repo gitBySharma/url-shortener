@@ -3,8 +3,20 @@ const shortid = require("shortid");
 const axios = require("axios");
 
 const Url = require("../models/url.js");
+const Analytics = require("../models/analytics.js");
 
 
+
+// Utility function to detect device type
+const getDeviceType = (userAgent) => {
+    if (/mobile/i.test(userAgent)) return "mobile";
+    if (/tablet/i.test(userAgent)) return "tablet";
+    return "desktop";
+};
+
+
+
+//function to create a shorturl
 exports.createShortUrl = async (req, res, next) => {
     try {
         const { longUrl, customAlias, topic } = req.body;
@@ -57,7 +69,7 @@ exports.createShortUrl = async (req, res, next) => {
 };
 
 
-
+//function to log analytics and redirect shorturl
 exports.redirectShortUrl = async (req, res, next) => {
     try {
         const { alias } = req.params;
@@ -68,9 +80,15 @@ exports.redirectShortUrl = async (req, res, next) => {
             return res.status(404).json({ message: "Url not found" });
         }
 
+        // Increment the clicks count for the URL
+        await Url.findByIdAndUpdate(url._id, { $inc: { clicks: 1 } });
+
         //log analytics data
         const userAgent = req.headers["user-agent"];
-        const ipAddress = req.ip;
+        const ipAddress = req.ip === "::1" ? "127.0.0.1" : req.ip;  //handle localhost ip
+        const osType = /Windows|Mac|Linux|Android|iOS/.exec(userAgent)?.[0] || "Other";
+        const deviceType = getDeviceType(userAgent);
+
         const timestamp = new Date();
 
         //get geolocation data
@@ -82,6 +100,17 @@ exports.redirectShortUrl = async (req, res, next) => {
             userAgent,
             ipAddress,
             geolocation
+        });
+
+        //store click data in analytics
+        await Analytics.create({
+            urlId: url._id,
+            userId: url.userId,
+            timestamp,
+            userAgent,
+            ipAddress,
+            osType,
+            deviceType
         });
 
         res.redirect(url.longUrl);

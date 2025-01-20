@@ -13,6 +13,7 @@ const userController = require("./controllers/user.js");
 
 const user_routes = require("./routes/user.js");
 const url_routes = require("./routes/url.js");
+const analyticsRoutes = require("./routes/analytics.js");
 
 
 const app = express();
@@ -27,6 +28,7 @@ app.set("trust proxy", 1); //trust the first proxy (e.g when using Nginx)
 
 app.use(user_routes);
 app.use(url_routes);
+app.use(analyticsRoutes);
 
 
 
