@@ -13,9 +13,14 @@ exports.authenticate = async (req, res, next) => {
             return res.status(401).send("Access denied. No token provided.");
 
         }
-        const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
-        if (!decodedUser) {
-            return res.status(401).send("Access denied. Invalid token.");
+        //verify token
+        let decodedUser;
+        try {
+            decodedUser = jwt.verify(token, process.env.JWT_SECRET);
+
+        } catch (error) {
+            console.log("Token error", error);
+            return res.status(401).json({ error: "Invalid token." });
 
         }
 
