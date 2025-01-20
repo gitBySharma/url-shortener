@@ -23,6 +23,10 @@ const UrlSchema = new Schema({
         ref: "Users",
         required: true
     },
+    clicks: {
+        type: Number,
+        default: 0
+    }
 
 }, { timestamps: true });
 

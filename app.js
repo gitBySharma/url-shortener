@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 
 const User = require("./models/user.js");
 const Url = require("./models/url.js");
+const Analytics = require("./models/analytics.js");
 
 const userController = require("./controllers/user.js");
 

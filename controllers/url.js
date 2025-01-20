@@ -45,7 +45,7 @@ exports.createShortUrl = async (req, res, next) => {
         //success response
         res.status(200).json({
             message: "Short url created successfully",
-            shortUrl: `${process.env.BASE_URL}/${newUrl.shortUrl}`,
+            shortUrl: newUrl.shortUrl,
             createdAt: newUrl.createdAt
         })
 
