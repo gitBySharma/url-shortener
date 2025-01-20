@@ -151,6 +151,15 @@
                         <input type="text" class="form-control" id="customAlias" placeholder="Enter your custom alias">
                         <div class="form-text">Create a memorable alias for your URL (e.g., my-special-link)</div>
                     </div>
+                    <div class="mb-3">
+                        <label for="topic" class="form-label">Topic (Optional)</label>
+                        <select class="form-control" id="topic">
+                            <option value="acquisition">Acquisition</option>
+                            <option value="retention">Retention</option>
+                            <option value="activation">Activation</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-shorten">
                         <i class="bi bi-link-45deg me-2"></i>
                         Shorten URL
@@ -158,29 +167,17 @@
                 </form>
             </div>
 
-            <!-- <div class="recent-links">
-                <h3 class="mb-4">Recent Links</h3>
+            <div class="recent-links" id="short-url-div" style="display: none;">
+                <h3 class="mb-4">Short URL</h3>
                 <div class="link-item d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted mb-1">Original: example.com/very-long-url...</div>
-                        <div class="fw-bold">wrp.sh/custom-name</div>
+                        <div class="text-muted mb-1">
+                            <p id="original-url">Long URL: example.com/very-long-url...</p>
+                        </div>
+                        <div class="fw-bold">Short URL: <a href="" id="shortUrl">warp&shrink.sh/custom-name</a></div>
                     </div>
-                    <button class="btn copy-btn">
-                        <i class="bi bi-clipboard me-2"></i>
-                        Copy
-                    </button>
                 </div>
-                <div class="link-item d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted mb-1">Original: another-example.com/path...</div>
-                        <div class="fw-bold">wrp.sh/my-link</div>
-                    </div>
-                    <button class="btn copy-btn">
-                        <i class="bi bi-clipboard me-2"></i>
-                        Copy
-                    </button>
-                </div>
-            </div> -->
+            </div>
         </div>
     </div>
 
@@ -230,18 +227,44 @@
     const urlForm = document.getElementById("url-form");
     const longUrl = document.getElementById("longUrl");
     const customAlias = document.getElementById("customAlias");
+    const topic = document.getElementById("topic");
 
     urlForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const token = localStorage.getItem("token");
+
         const response = await axios.post("/api/shorten/", {
-            "longUrl": longUrl.value,
-            "customAlias": customAlias.value
+            longUrl: longUrl.value,
+            customAlias: customAlias.value,
+            topic: topic.value
         }, { headers: { "Authorization": token } });
-        if (response.status == 200) {
+
+        if (response.status === 200) {
             console.log("response", response);
+            document.getElementById("original-url").innerHTML = `Long URL: ${longUrl.value}`;
+            document.getElementById("shortUrl").innerHTML = response.data.shortUrl;
+            document.getElementById("shortUrl").target = "_blank";
+            document.getElementById("short-url-div").style.display = "block";
+
+            document.getElementById("shortUrl").addEventListener("click", async () => {
+                const token = localStorage.getItem("token");
+                //extract the url alias
+                const url = new URL(response.data.shortUrl);
+                const pathname = url.pathname;
+                const alias = pathname.substring(1);
+
+                const redirect_response = await axios.get(`/api/shorten/${alias}`, { headers: { "Authorization": token } });   //redirect call to original url
+                if (redirect_response.status === 200) {
+                    window.open(redirect_response.data.url, "_blank");
+                }
+            });
+
+        } else {
+            alert("Error creating short URL");
+            location.reload();
         }
     });
+
 
 </script>
 

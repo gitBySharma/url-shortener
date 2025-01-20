@@ -1,91 +1,84 @@
 require("dotenv").config();
 
-const express = require("express");
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const session = require("express-session");
+const { OAuth2Client } = require("google-auth-library");
 
 const User = require("../models/user.js");
 
 
-
-//passport google strategy
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
+const client = new OAuth2Client({
+    clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
-},
-    async (accessToken, refreshToken, profile, done) => {
-        try {
-            //check if user already exists
-            let user = await User.findOne({ googleId: profile.id });
-            if (!user) {
-                user = await User.create({
-                    googleId: profile.id,
-                    email: profile.emails[0].value,
-                    name: profile.displayName
-                });
-            }
-
-            //generate JWT token
-            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-            user.token = token;
-
-            return done(null, user);
-
-        } catch (error) {
-            console.log("Error during login", error);
-            return done(error, null);
-        }
-    }
-));
-
-//serialize user for session
-passport.serializeUser((user, done) => {
-    done(null, user.id);
+    redirectUri: process.env.GOOGLE_REDIRECT_URL,
 });
 
-//deserialize user from session
-passport.deserializeUser(async (id, done) => {
+exports.googleAuth = async (req, res,) => {
     try {
-        const user = User.findById(id);
-        done(null, user);
+        //generate google Oauth url
+        const url = client.generateAuthUrl({
+            access_type: "offline",
+            scope: ["profile", "email"],
+            prompt: "consent",
+            include_granted_scopes: true
+        });
+
+        res.status(200).json({ url });
 
     } catch (error) {
-        console.log("Deserialisation error", error);
-        done(error, null);
+        console.log("Error getting auth url", error);
+        res.status(500).json({ message: "Authentication failed" });
     }
-});
-
-
-//controller functions
-
-exports.getHomePage = (req, res, next) => {
-    res.sendFile('homePage.html', { root: "./public" });
-}
-
-
-exports.getDashboard = (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/');
-    }
-    res.sendFile('dashboard.html', { root: './public' });
 };
 
 
-exports.getDashboardData = (req, res, next) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: "Unauthorized" });
+exports.googleCallback = async (req, res, next) => {
+    try {
+        const code = req.query.code;
+        if (!code) {
+            return res.status(400).json({ message: "Invalid request. Authrization code required" });
+        }
+
+        //exchange code for tokens
+        const { tokens } = await client.getToken(code);
+        client.setCredentials(tokens);
+
+        // Get user info using the access token
+        const oauth2Client = new OAuth2Client();
+        oauth2Client.setCredentials({ access_token: tokens.access_token });
+
+        const url = 'https://www.googleapis.com/oauth2/v2/userinfo';
+        const response = await oauth2Client.request({ url });
+        const userInfo = response.data;
+
+        // Find or create user
+        let user = await User.findOne({ googleId: userInfo.id });
+        if (!user) {
+            user = await User.create({
+                googleId: userInfo.id,
+                email: userInfo.email,
+                name: userInfo.name
+            });
+        }
+
+        //generate JWT token
+        const token = jwt.sign(
+            { id: user.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        res.status(200).json({
+            token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        console.log("Error during callback", error);
+        res.status(500).json({ message: "Authentication failed" });
 
     }
-    res.status(200).json({
-        message: "Welcome to dashboard",
-        user: {
-            id: req.user.id,
-            name: req.user.name,
-            email: req.user.email
-        },
-    });
 };
