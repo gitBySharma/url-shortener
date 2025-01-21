@@ -29,7 +29,7 @@ app.use(analyticsRoutes);
 
 
 
-mongoose.connect(`mongodb+srv://fetchsubhankar:${process.env.DATABASE_PASSWORD}@urlshortener.rop3w.mongodb.net/url_shortener?retryWrites=true&w=majority&appName=URLShortener`)
+mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
     .then(() => {
         console.log("Connected to mongoDB");
         app.listen(process.env.PORT, () => {
