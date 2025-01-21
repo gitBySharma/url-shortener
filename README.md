@@ -168,7 +168,7 @@ Replace the placeholders with your actual credentials and configuration values.
 ## Deployment
 
 ### Live Application
-- URL: *(Add the live application link here)*
+- URL: *(Coming soon)*
 
 #### Deployment Steps
 
