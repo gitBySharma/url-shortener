@@ -58,7 +58,8 @@ exports.createShortUrl = async (req, res, next) => {
         res.status(200).json({
             message: "Short url created successfully",
             shortUrl: newUrl.shortUrl,
-            createdAt: newUrl.createdAt
+            createdAt: newUrl.createdAt,
+            base_website: process.env.WEBSITE
         })
 
     } catch (error) {
@@ -95,13 +96,6 @@ exports.redirectShortUrl = async (req, res, next) => {
         const geoResponse = await axios.get(`http://ip-api.com/json/${ipAddress}`)
         const geolocation = geoResponse.data;
 
-        console.log("Short url analytics:", {
-            timestamp,
-            userAgent,
-            ipAddress,
-            geolocation
-        });
-
         //store click data in analytics
         await Analytics.create({
             urlId: url._id,
@@ -114,6 +108,8 @@ exports.redirectShortUrl = async (req, res, next) => {
         });
 
         res.redirect(url.longUrl);
+
+        // res.status(200).json({ url: url.longUrl });
 
     } catch (error) {
         console.log("Error redirecting short url:", error);

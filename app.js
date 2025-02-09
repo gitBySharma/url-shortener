@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -17,10 +18,24 @@ const analyticsRoutes = require("./routes/analytics.js");
 const app = express();
 
 //middlewares
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3000'],  // Frontend URL (change it to match your frontend origin)
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Headers you want to allow
+    credentials: true,  // Allow credentials (cookies, authorization headers)
+}));
+app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 app.set("trust proxy", 1); //trust the first proxy (e.g when using Nginx)
+
+
+//middleware for base route
+app.get('/', (req, res, next) => {
+    res.sendFile(path.join(__dirname, './public', 'homePage.html'));
+});
+
 
 
 app.use(user_routes);

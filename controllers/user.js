@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const path = require("path");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 
@@ -22,7 +23,7 @@ exports.googleAuth = async (req, res,) => {
             include_granted_scopes: true
         });
 
-        res.status(200).json({ url });
+        res.status(200).json({ url: url });
 
     } catch (error) {
         console.log("Error getting auth url", error);
@@ -67,14 +68,18 @@ exports.googleCallback = async (req, res, next) => {
             { expiresIn: "1h" }
         );
 
-        res.status(200).json({
-            token,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email
-            }
-        });
+        // //json response for backend only api
+        // res.status(200).json({
+        //     token,
+        //     user: {
+        //         id: user.id,
+        //         name: user.name,
+        //         email: user.email
+        //     }
+        // });
+
+        //redirected response for frontend simulation
+        res.redirect(`/dashboard?token=${token}`);
 
     } catch (error) {
         console.log("Error during callback", error);
@@ -82,3 +87,29 @@ exports.googleCallback = async (req, res, next) => {
 
     }
 };
+
+
+
+//function to get dashboard
+exports.getDashboard = async (req, res, next) => {
+    res.sendFile(path.join(__dirname, '../public', 'dashboard.html'));
+}
+
+
+//function to get a user's data
+exports.getUserDashboardData = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+
+        }
+
+        res.status(200).json({ user });
+
+    } catch (error) {
+        console.log("Error fetching user's data", error);
+        res.status(500).json({ message: "Failed to fetch user's data" });
+
+    }
+}

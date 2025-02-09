@@ -10,7 +10,7 @@ const rateLimit = require("../middleware/rateLimit.js");
 router.post("/api/shorten/", authentication.authenticate, rateLimit.shortUrlLimiter, urlController.createShortUrl);
 
 //route for redirecting to short url
-router.get("/api/shorten/:alias", urlController.redirectShortUrl);
+router.get("/:alias", urlController.redirectShortUrl);
 
 
 module.exports = router;
