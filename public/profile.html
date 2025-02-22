@@ -388,7 +388,7 @@
                     </div>
 
                     <!-- Geo location data -->
-                    <div class="card border-0 shadow-sm">
+                    <!-- <div class="card border-0 shadow-sm">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">Geolocation Data</h6>
                             <span class="badge bg-primary" id="geoLocationCount">0 Entries</span>
@@ -409,13 +409,13 @@
                                             <th>Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="geoLocationTable">
+                                    <tbody id="geoLocationTable"> -->
                                         <!-- Data will be populated dynamically -->
-                                    </tbody>
+                                    <!-- </tbody>
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -614,38 +614,38 @@
                 </tr>
             `).join('');
 
-            // Update geolocation data
-            const geoLocationTable = document.getElementById('geoLocationTable');
-            document.getElementById('geoLocationCount').textContent = `${response.data.geoLocationData.length} Entries`;
+            // // Update geolocation data
+            // const geoLocationTable = document.getElementById('geoLocationTable');
+            // document.getElementById('geoLocationCount').textContent = `${response.data.geoLocationData.length} Entries`;
 
-            geoLocationTable.innerHTML = response.data.geoLocationData
-                .map(entry => {
-                    const geo = entry.geoLocationData;
-                    if (geo.status === 'success') {
-                        return `
-                        <tr>
-                            <td>${new Date(entry.timestamp).toLocaleString()}</td>
-                            <td>${geo.query}</td>
-                            <td>${geo.country}</td>
-                            <td>${geo.regionName}</td>
-                            <td>${geo.city}</td>
-                            <td>${geo.zip}</td>
-                            <td>${geo.lat}</td>
-                            <td>${geo.lon}</td>
-                            <td><span class="badge bg-success">Success</span></td>
-                        </tr>
-                    `;
-                    } else {
-                        return `
-                        <tr>
-                            <td>${new Date(entry.timestamp).toLocaleString()}</td>
-                            <td>${geo.query}</td>
-                            <td colspan="3"><em class="text-muted">${geo.message || 'Location data unavailable'}</em></td>
-                            <td><span class="badge bg-warning text-dark">Failed</span></td>
-                        </tr>
-                    `;
-                    }
-                }).join('');
+            // geoLocationTable.innerHTML = response.data.geoLocationData
+            //     .map(entry => {
+            //         const geo = entry.geoLocationData;
+            //         if (geo.status === 'success') {
+            //             return `
+            //             <tr>
+            //                 <td>${new Date(entry.timestamp).toLocaleString()}</td>
+            //                 <td>${geo.query}</td>
+            //                 <td>${geo.country}</td>
+            //                 <td>${geo.regionName}</td>
+            //                 <td>${geo.city}</td>
+            //                 <td>${geo.zip}</td>
+            //                 <td>${geo.lat}</td>
+            //                 <td>${geo.lon}</td>
+            //                 <td><span class="badge bg-success">Success</span></td>
+            //             </tr>
+            //         `;
+            //         } else {
+            //             return `
+            //             <tr>
+            //                 <td>${new Date(entry.timestamp).toLocaleString()}</td>
+            //                 <td>${geo.query}</td>
+            //                 <td colspan="3"><em class="text-muted">${geo.message || 'Location data unavailable'}</em></td>
+            //                 <td><span class="badge bg-warning text-dark">Failed</span></td>
+            //             </tr>
+            //         `;
+            //         }
+            //     }).join('');
 
         } catch (error) {
             console.log("Fetching URL analytics error", error);
