@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My URLs - Warp & Shrink</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.7.2/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #1faa9c 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+            padding: 1.1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: clamp(1.8rem, 4vw, 2.8rem) !important;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        #welcome-msg {
+            margin: 0;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: 500;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-container {
+            flex-grow: 1;
+            padding: 2rem 0;
+        }
+
+        .dashboard-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .links-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .filter-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .links-table {
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .short-url {
+            color: #1faa9c;
+            text-decoration: underline;
+        }
+
+        .copy-btn {
+            color: #1faa9c;
+            border: 1px solid #1faa9c;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        .copy-btn:hover {
+            background-color: #1faa9c;
+            color: white;
+        }
+
+        .topic-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* .topic-acquisition {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .topic-retention {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .topic-activation {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        } */
+
+        /* .topic-other {
+            background-color: #f5f5f5;
+            color: #616161;
+        } */
+
+        .pagination {
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .logout-btn {
+            color: #1faa9c;
+            border: 1px solid #1faa9c;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #1faa9c;
+            color: white;
+        }
+
+        .footer {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            color: white;
+            text-align: center;
+        }
+
+        .footer-bottom {
+            color: rgba(255, 255, 255, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .links-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .table-responsive {
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand text-white" href="#">
+                <i class="bi bi-link-45deg me-2"></i>
+                Warp & Shrink
+            </a>
+            <div class="user-info ms-auto">
+                <div class="text-white">
+                    <h5 id="welcome-msg"></h5>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-container">
+        <div class="dashboard-card">
+            <div class="links-header">
+                <h2>My URLs</h2>
+                <a href="/dashboard" class="btn btn-shorten">
+                    <i class="bi bi-plus-lg me-2"></i>
+                    Create New ShortURL
+                </a>
+            </div>
+
+            <div class="filter-section">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search links...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="topicFilter">
+                            <option value="">All Topics</option>
+                            <option value="other">Other</option>
+                            <option value="social_media">Social Media</option>
+                            <option value="ecommerce">E-Commerce</option>
+                            <option value="news_media">News & Media</option>
+                            <option value="education">Educational</option>
+                            <option value="music_multimedia">Music & Multimedia</option>
+                            <option value="business_professional">Business & Professional</option>
+                            <option value="technology">Technology</option>
+                            <option value="health_fitness">Health & Fitness</option>
+                            <option value="travel">Travel</option>
+                            <option value="recipes_food">Recipes & Food</option>
+                            <option value="events_entertainment">Events & Entertainment</option>
+                            <option value="sports">Sports</option>
+                            <option value="personal">Personal</option>
+                            <option value="marketing_advertising">Marketing & Advertising</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="links-table">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Short URL</th>
+                                <th>Original URL</th>
+                                <th>Topic</th>
+                                <th>Total Clicks</th>
+                                <th>Created On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="linksTableBody">
+                            <!-- Table rows will be added dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination" id="pagination">
+                    <!-- Pagination will be dynamically populated -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Analytics Modal -->
+    <div class="modal fade" id="analyticsModal" tabindex="-1" aria-labelledby="analyticsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header"
+                    style="background: linear-gradient(135deg, #667eea 0%, #1faa9c 100%); color: white;">
+                    <h5 class="modal-title" id="analyticsModalLabel">URL Analytics</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Overview Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-graph-up text-primary mb-2" style="font-size: 2rem;"></i>
+                                    <h3 class="card-title" id="totalClicks">0</h3>
+                                    <p class="card-text text-muted">Total Clicks</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-people text-success mb-2" style="font-size: 2rem;"></i>
+                                    <h3 class="card-title" id="uniqueUsers">0</h3>
+                                    <p class="card-text text-muted">Unique Users</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clicks by Date -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Clicks by Date (Last 7 days)</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Click Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="clicksByDateTable">
+                                        <!-- Data will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Device & OS Information -->
+                    <div class="row g-4">
+                        <!-- OS Type -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Operating Systems</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>OS</th>
+                                                    <th>Clicks</th>
+                                                    <th>Users</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="osTypeTable">
+                                                <!-- Data will be populated dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Device Type -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Device Types</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Device</th>
+                                                    <th>Clicks</th>
+                                                    <th>Users</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="deviceTypeTable">
+                                                <!-- Data will be populated dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Geo location data -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Geolocation Data</h6>
+                            <span class="badge bg-primary" id="geoLocationCount">0 Entries</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>IP Address</th>
+                                            <th>Country</th>
+                                            <th>Region</th>
+                                            <th>City</th>
+                                            <th>Zip</th>
+                                            <th>Lattitude</th>
+                                            <th>Longitude</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="geoLocationTable">
+                                        <!-- Data will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-bottom">
+                    <p>&copy; 2025 Warp & Shrink. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.8/axios.min.js"></script>
+</body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = "/";
+            return;
+        }
+
+        // Load user data
+        try {
+            const user_name = localStorage.getItem("user_name");
+            document.getElementById("welcome-msg").innerHTML = `Welcome, ${user_name}!`;
+
+        } catch (error) {
+            console.error("Error loading user data:", error);
+            window.location.href = "/";
+        }
+
+        // Load links data
+        loadLinks();
+    });
+
+    // Logout functionality
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem('token');
+        window.location.href = "/";
+    });
+
+    // Search implementation
+    document.getElementById("searchInput").addEventListener("input", debounce(async (e) => {
+        await loadLinks();
+    }, 300));
+
+    // Handle Enter key
+    document.getElementById("searchInput").addEventListener("keypress", async (e) => {
+        if (e.key === "Enter") {
+            await loadLinks();
+        }
+    });
+
+    //filter by topic
+    document.getElementById("topicFilter").addEventListener("change", async () => {
+        await loadLinks();  // Fetch links based on selected topic
+    });
+
+    async function loadLinks() {
+        const token = localStorage.getItem('token');
+
+        const search = document.getElementById("searchInput").value.trim();
+        const topic = document.getElementById("topicFilter").value;
+
+        try {
+            const response = await axios.get(`/api/urls/`, {
+                headers: { "Authorization": token },
+                params: { search, topic }
+            });
+
+            updateTableContent(response.data.urls);
+
+        } catch (error) {
+            console.error("Error loading urls:", error);
+            alert("Error loading urls");
+        }
+    }
+
+    // Helper function to update table content
+    function updateTableContent(urls) {
+        const tableBody = document.getElementById("linksTableBody");
+        tableBody.innerHTML = '';
+
+        if (urls.length === 0) {
+            tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <i class="bi bi-search text-muted mb-2" style="font-size: 2rem;"></i>
+                    <p class="text-muted mb-0">No matching links found</p>
+                </td>
+            </tr>
+        `;
+            return;
+        }
+
+        urls.forEach(link => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td>
+                <a href="/${link.shortUrl}" class="short-url" target="_blank">
+                    ${link.shortUrl}
+                </a>
+            </td>
+            <td class="text-truncate" style="max-width: 200px;">${link.longUrl}</td>
+            <td>
+                <span class="topic-badge topic-${link.topic.toLowerCase()}">
+                    ${link.topic}
+                </span>
+            </td>
+            <td>${link.clicks}</td>
+            <td>${new Date(link.createdAt).toLocaleDateString()}</td>
+            <td>
+                <button class="copy-btn" onclick="copyUrl('${link.shortUrl}')">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+                <button class="copy-btn" onclick="getURLAnalytics('${link.shortUrl}')">
+                    Analytics
+                </button>
+            </td>
+        `;
+            tableBody.appendChild(row);
+        });
+    }
+
+
+
+    async function copyUrl(shortUrl) {
+        const fullUrl = `${window.location.origin}/${shortUrl}`;
+        try {
+            await navigator.clipboard.writeText(fullUrl);
+            alert("URL copied to clipboard!");
+        } catch (error) {
+            console.error("Error copying to clipboard:", error);
+        }
+    }
+
+
+    function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+
+    async function getURLAnalytics(shortUrl) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`/api/analytics/${shortUrl}`, { headers: { "Authorization": token } });
+            console.log(response.data);
+
+            // Show modal
+            const analyticsModal = new bootstrap.Modal(document.getElementById('analyticsModal'));
+            analyticsModal.show();
+
+            // Update overview metrics
+            document.getElementById('totalClicks').textContent = response.data.totalClicks;
+            document.getElementById('uniqueUsers').textContent = response.data.uniqueUsers;
+
+            // Update clicks by date table
+            const clicksByDateTable = document.getElementById('clicksByDateTable');
+            clicksByDateTable.innerHTML = response.data.clicksByDate
+                .map(click => `
+                <tr>
+                    <td>${new Date(click.date).toLocaleDateString()}</td>
+                    <td>${click.clickCount}</td>
+                </tr>
+            `).join('');
+
+            // Update OS type table
+            const osTypeTable = document.getElementById('osTypeTable');
+            osTypeTable.innerHTML = response.data.osType
+                .map(os => `
+                <tr>
+                    <td>${os.osName}</td>
+                    <td>${os.uniqueClicks}</td>
+                    <td>${os.uniqueUsers}</td>
+                </tr>
+            `).join('');
+
+            // Update device type table
+            const deviceTypeTable = document.getElementById('deviceTypeTable');
+            deviceTypeTable.innerHTML = response.data.deviceType
+                .map(device => `
+                <tr>
+                    <td>${device.deviceName}</td>
+                    <td>${device.uniqueClicks}</td>
+                    <td>${device.uniqueUsers}</td>
+                </tr>
+            `).join('');
+
+            // Update geolocation data
+            const geoLocationTable = document.getElementById('geoLocationTable');
+            document.getElementById('geoLocationCount').textContent = `${response.data.geoLocationData.length} Entries`;
+
+            geoLocationTable.innerHTML = response.data.geoLocationData
+                .map(entry => {
+                    const geo = entry.geoLocationData;
+                    if (geo.status === 'success') {
+                        return `
+                        <tr>
+                            <td>${new Date(entry.timestamp).toLocaleString()}</td>
+                            <td>${geo.query}</td>
+                            <td>${geo.country}</td>
+                            <td>${geo.regionName}</td>
+                            <td>${geo.city}</td>
+                            <td>${geo.zip}</td>
+                            <td>${geo.lat}</td>
+                            <td>${geo.lon}</td>
+                            <td><span class="badge bg-success">Success</span></td>
+                        </tr>
+                    `;
+                    } else {
+                        return `
+                        <tr>
+                            <td>${new Date(entry.timestamp).toLocaleString()}</td>
+                            <td>${geo.query}</td>
+                            <td colspan="3"><em class="text-muted">${geo.message || 'Location data unavailable'}</em></td>
+                            <td><span class="badge bg-warning text-dark">Failed</span></td>
+                        </tr>
+                    `;
+                    }
+                }).join('');
+
+        } catch (error) {
+            console.log("Fetching URL analytics error", error);
+            alert("Something went wrong");
+        }
+    }
+
+</script>
+
+</html>

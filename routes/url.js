@@ -13,4 +13,8 @@ router.post("/api/shorten/", authentication.authenticate, rateLimit.shortUrlLimi
 router.get("/:alias", urlController.redirectShortUrl);
 
 
+//route to get all the urls of an user
+router.get("/api/urls/", authentication.authenticate, urlController.getURLs);
+
+
 module.exports = router;

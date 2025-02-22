@@ -18,12 +18,7 @@ const analyticsRoutes = require("./routes/analytics.js");
 const app = express();
 
 //middlewares
-app.use(cors({
-    origin: ['http://localhost:3000'],  // Frontend URL (change it to match your frontend origin)
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Headers you want to allow
-    credentials: true,  // Allow credentials (cookies, authorization headers)
-}));
+app.use(cors());
 app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -4,6 +4,7 @@ const axios = require("axios");
 
 const Url = require("../models/url.js");
 const Analytics = require("../models/analytics.js");
+const User = require("../models/user.js");
 
 
 
@@ -93,19 +94,47 @@ exports.redirectShortUrl = async (req, res, next) => {
         const timestamp = new Date();
 
         //get geolocation data
-        const geoResponse = await axios.get(`http://ip-api.com/json/${ipAddress}`)
+        const geoResponse = await axios.get(`http://ip-api.com/json/${ipAddress}?fields=status,message,country,regionName,city,zip,lat,lon,query`)
         const geolocation = geoResponse.data;
 
-        //store click data in analytics
-        await Analytics.create({
-            urlId: url._id,
-            userId: url.userId,
-            timestamp,
-            userAgent,
-            ipAddress,
-            osType,
-            deviceType
-        });
+        if (geolocation.status === "success") {
+            //store click data in analytics
+            await Analytics.create({
+                urlId: url._id,
+                userId: url.userId,
+                timestamp,
+                userAgent,
+                ipAddress,
+                osType,
+                deviceType,
+                geoLocationData: {
+                    query: geolocation.query,
+                    status: geolocation.status,
+                    country: geolocation.country,
+                    regionName: geolocation.regionName,
+                    city: geolocation.city,
+                    zip: geolocation.zip,
+                    lat: geolocation.lat,
+                    lon: geolocation.lon
+                }
+            });
+
+        } else {
+            await Analytics.create({
+                urlId: url._id,
+                userId: url.userId,
+                timestamp,
+                userAgent,
+                ipAddress,
+                osType,
+                deviceType,
+                geoLocationData: {
+                    query: geolocation.query,
+                    status: geolocation.status,
+                    message: geolocation.message
+                }
+            });
+        }
 
         res.redirect(url.longUrl);
 
@@ -117,3 +146,43 @@ exports.redirectShortUrl = async (req, res, next) => {
 
     }
 };
+
+
+//function to get all the urls of an user
+exports.getURLs = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const { search, topic } = req.query;
+
+        let query = { userId };
+
+        // Add search conditions if search term exists
+        if (search) {
+            // Create case-insensitive search
+            query.$or = [
+                { shortUrl: { $regex: search, $options: 'i' } },
+                { longUrl: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Add topic filter if specified
+        if (topic) {
+            query.topic = topic;
+        }
+
+        // Execute query
+        const urls = await Url.find(query)
+            .sort({ createdAt: -1 }) // Sort by newest first
+            .lean(); // Convert to plain JavaScript objects for better performance
+
+        if (!urls) {
+            return res.status(404).json({ message: "No urls found" });
+        }
+
+        res.status(200).json({ urls: urls });
+
+    } catch (error) {
+        console.log("URLs fetching error", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}

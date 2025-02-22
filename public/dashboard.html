@@ -245,6 +245,7 @@
                     <h5 id="welcome-msg"></h5>
                 </div>
                 <button id="logoutBtn" class="logout-btn">Logout</button>
+                <button id="profileBtn" class="logout-btn">Profile</button>
             </div>
         </div>
     </nav>
@@ -267,10 +268,21 @@
                     <div class="mb-3">
                         <label for="topic" class="form-label">Topic (Optional)</label>
                         <select class="form-control" id="topic">
-                            <option value="acquisition">Acquisition</option>
-                            <option value="retention">Retention</option>
-                            <option value="activation">Activation</option>
                             <option value="other">Other</option>
+                            <option value="social_media">Social Media</option>
+                            <option value="ecommerce">E-Commerce</option>
+                            <option value="news_media">News & Media</option>
+                            <option value="education">Educational</option>
+                            <option value="music_multimedia">Music & Multimedia</option>
+                            <option value="business_professional">Business & Professional</option>
+                            <option value="technology">Technology</option>
+                            <option value="health_fitness">Health & Fitness</option>
+                            <option value="travel">Travel</option>
+                            <option value="recipes_food">Recipes & Food</option>
+                            <option value="events_entertainment">Events & Entertainment</option>
+                            <option value="sports">Sports</option>
+                            <option value="personal">Personal</option>
+                            <option value="marketing_advertising">Marketing & Advertising</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-shorten">
@@ -331,11 +343,19 @@
         }
 
         //new get request to retrieve user data
-        const response = await axios.get("/dashboard/user/data", { headers: { "Authorization": token } });
-        if (response.status == 200) {
+        const user_name = localStorage.getItem("user_name");
+        if (user_name) {
             const welcome_msg = document.getElementById("welcome-msg");
-            welcome_msg.innerHTML = `Welcome, ${response.data.user.name}!`;
+            welcome_msg.innerHTML = `Welcome, ${user_name}!`;
 
+        } else {
+            const response = await axios.get("/dashboard/user/data", { headers: { "Authorization": token } });
+            if (response.status == 200) {
+                localStorage.setItem("user_name", response.data.user.name);
+                const welcome_msg = document.getElementById("welcome-msg");
+                welcome_msg.innerHTML = `Welcome, ${response.data.user.name}!`;
+
+            }
         }
     });
 
@@ -346,6 +366,12 @@
         // Redirect to the login page
         window.location.href = "/";
 
+    });
+
+
+    document.getElementById("profileBtn").addEventListener("click", (event) => {
+        event.preventDefault();
+        location.href = "profile.html"
     });
 
 
@@ -426,7 +452,7 @@
 
         } catch (error) {
             console.error("Error creating short URL:", error);
-            alert("Error creating short URL");
+            alert(error.response.data.message);
 
         }
     });

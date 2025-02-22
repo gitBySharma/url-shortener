@@ -15,7 +15,6 @@ const UrlSchema = new Schema({
     },
     topic: {
         type: String,
-        enum: ["acquisition", "activation", "retention", "other"],
         default: "other"
     },
     userId: {

@@ -81,12 +81,15 @@ exports.getUrlAnalytics = async (req, res, next) => {
             },
         ]);
 
+        const geoLocationData = await Analytics.find({ urlId: url._id }).select('geoLocationData timestamp');
+
         res.status(200).json({
             totalClicks,
             uniqueUsers,
             clicksByDate,
             osType,
             deviceType,
+            geoLocationData
         });
 
     } catch (error) {

@@ -20,7 +20,18 @@ const AnalyticsSchema = new Schema({
     userAgent: String,
     ipAddress: String,
     osType: String,
-    deviceType: String
+    deviceType: String,
+    geoLocationData: {
+        query: { type: String },
+        status: { type: String },
+        message: { type: String },
+        country: { type: String },
+        regionName: { type: String },
+        city: { type: String },
+        zip: { type: String },
+        lat: { type: Number },
+        lon: { type: Number }
+    }
 });
 
 module.exports = mongoose.model("Analytics", AnalyticsSchema);
